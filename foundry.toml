@@ -1,0 +1,9 @@
+[profile.default]
+solc = "0.8.33"
+optimizer = true
+optimizer_runs = 99999999
+via_ir = true
+
+fs_permissions = [
+    { access = "read", path = "./lib/erc8109/out/" }
+]
