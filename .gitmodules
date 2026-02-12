@@ -1,0 +1,3 @@
+[submodule "lib/erc8109"]
+	path = lib/erc8109
+	url = https://github.com/wjmelements/erc8109
