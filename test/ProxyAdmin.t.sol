@@ -62,6 +62,14 @@ contract ProxyAdminTest is Test {
         treasury.uninstall(BecomeAdmin.becomeAdministrator.selector);
     }
 
+    function testUpgradeFunctionNotFound() public {
+        address delegate = address(new BecomeAdmin());
+        vm.expectRevert(
+            abi.encodeWithSelector(IERC8109Minimal.FunctionNotFound.selector, BecomeAdmin.becomeAdministrator.selector)
+        );
+        treasury.upgrade(BecomeAdmin.becomeAdministrator.selector, delegate);
+    }
+
     function testInstall() public {
         assertEq(treasury.facetAddress(BecomeAdmin.becomeAdministrator.selector), FUNCTION_NOT_FOUND);
 
