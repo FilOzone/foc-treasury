@@ -19,6 +19,7 @@ interface ITreasury is IERC8109Minimal {
     function reserved() external view returns (uint256 reserved);
 
     // onlyTreasurer
+    error OversizedGrant(uint256 wad);
     function grant(address who, uint256 wad) external;
     function withhold(address who, uint256 wad) external;
 

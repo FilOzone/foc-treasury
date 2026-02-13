@@ -6,12 +6,26 @@ import {MockFVMTest} from "fvm-solidity/mocks/MockFVMTest.sol";
 
 import {BecomeAdmin} from "../src/bootstrap/BecomeAdmin.sol";
 import {Allocated, Authorization, Dispersed, Granted} from "../src/gen/TreasuryStorageView.sol";
+import {IFilecoinPay, NATIVE_TOKEN} from "../src/interfaces/IFilecoinPay.sol";
 import {ITreasury} from "../src/interfaces/ITreasury.sol";
 import {AppointTreasurer} from "../src/impl/AuthAdmin.sol";
-import {DepositTo, Grant, Withdraw, Withhold} from "../src/impl/Grants.sol";
+import {DepositTo, Grant, MAX_GRANT, Withdraw, Withhold} from "../src/impl/Grants.sol";
 import {Install, Uninstall} from "../src/impl/ProxyAdmin.sol";
 
 uint256 constant TREASURER = 2;
+
+contract MockFilecoinPay is IFilecoinPay {
+    mapping(address user => uint256 balance) public balances;
+
+    // exclude from coverage
+    function test() public pure {}
+
+    function deposit(address token, address to, uint256 wad) external payable {
+        require(token == NATIVE_TOKEN);
+        require(wad == msg.value);
+        balances[to] += wad;
+    }
+}
 
 contract GrantsTest is MockFVMTest {
     address internal proxy;
@@ -57,6 +71,24 @@ contract GrantsTest is MockFVMTest {
         treasury.grant(unauthorized, 10 ** 18);
     }
 
+    function testWithholdUnauthorized() public {
+        vm.expectRevert(abi.encodeWithSelector(ITreasury.Unauthorized.selector, address(this), TREASURER));
+        treasury.withhold(unauthorized, 10 ** 18);
+    }
+
+    function testOversizedGrant() public {
+        vm.prank(treasurer);
+        vm.expectRevert(abi.encodeWithSelector(ITreasury.OversizedGrant.selector, MAX_GRANT + 1));
+        treasury.grant(unauthorized, MAX_GRANT + 1);
+
+        assertEq(treasury.granted(unauthorized), 0);
+
+        vm.prank(treasurer);
+        treasury.grant(unauthorized, MAX_GRANT);
+
+        assertEq(treasury.granted(unauthorized), MAX_GRANT);
+    }
+
     function testWithdrawGrant() public {
         assertEq(treasury.granted(unauthorized), 0);
         assertEq(treasury.allocated(), 0);
@@ -86,6 +118,60 @@ contract GrantsTest is MockFVMTest {
 
         assertEq(unauthorized.balance, 0);
         assertEq(recipient.balance, 1 ether);
+        assertEq(treasury.granted(unauthorized), 0);
+        assertEq(treasury.allocated(), 1 ether);
+        assertEq(treasury.dispersed(), 1 ether);
+    }
+
+    function testWithholdGrant() public {
+        assertEq(treasury.granted(unauthorized), 0);
+        assertEq(treasury.allocated(), 0);
+        assertEq(treasury.dispersed(), 0);
+
+        vm.prank(treasurer);
+        treasury.grant(unauthorized, 3 ether);
+
+        assertEq(treasury.granted(unauthorized), 3 ether);
+        assertEq(treasury.allocated(), 3 ether);
+        assertEq(treasury.dispersed(), 0);
+
+        vm.prank(treasurer);
+        treasury.withhold(unauthorized, 1 ether);
+
+        assertEq(treasury.granted(unauthorized), 2 ether);
+        assertEq(treasury.allocated(), 2 ether);
+        assertEq(treasury.dispersed(), 0);
+
+        vm.prank(treasurer);
+        treasury.withhold(unauthorized, 3 ether);
+
+        assertEq(treasury.granted(unauthorized), 0);
+        assertEq(treasury.allocated(), 0);
+        assertEq(treasury.dispersed(), 0);
+    }
+
+    function testDepositGrant() public {
+        MockFilecoinPay filecoinPay = new MockFilecoinPay();
+
+        vm.prank(unauthorized);
+        vm.expectRevert(stdError.arithmeticError);
+        treasury.depositTo(filecoinPay, recipient, 2 ether);
+
+        vm.prank(treasurer);
+        treasury.grant(unauthorized, 1 ether);
+
+        vm.prank(unauthorized);
+        vm.expectRevert();
+        treasury.depositTo(filecoinPay, recipient, 1 ether);
+
+        assertEq(filecoinPay.balances(recipient), 0);
+
+        vm.deal(proxy, 1 ether);
+        vm.prank(unauthorized);
+        treasury.depositTo(filecoinPay, recipient, 1 ether);
+
+        assertEq(filecoinPay.balances(recipient), 1 ether);
+        assertEq(recipient.balance, 0);
         assertEq(treasury.granted(unauthorized), 0);
         assertEq(treasury.allocated(), 1 ether);
         assertEq(treasury.dispersed(), 1 ether);

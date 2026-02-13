@@ -7,8 +7,11 @@ import {ITreasury} from "../interfaces/ITreasury.sol";
 import {TreasuryStorage} from "../TreasuryStorage.sol";
 import {TreasuryAuth} from "../TreasuryAuth.sol";
 
+uint256 constant MAX_GRANT = 2000000000 ether;
+
 contract Grant is TreasuryAuth {
     function grant(address who, uint256 wad) external onlyTreasurer {
+        require(wad <= MAX_GRANT, ITreasury.OversizedGrant(wad));
         granted[who] += wad;
         allocated += wad;
     }
