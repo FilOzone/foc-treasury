@@ -15,8 +15,8 @@ interface ITreasury is IERC8109Minimal {
     function allocated() external view returns (uint256 allocated);
     function dispersed() external view returns (uint256 dispersed);
     // calculated
-    function available() external view returns (uint256 available);
-    function reserved() external view returns (uint256 reserved);
+    function available() external view returns (uint256);
+    function reserved() external view returns (uint256);
 
     // onlyTreasurer
     error OversizedGrant(uint256 wad);

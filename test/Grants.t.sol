@@ -9,7 +9,7 @@ import {Allocated, Authorization, Dispersed, Granted} from "../src/gen/TreasuryS
 import {IFilecoinPay, NATIVE_TOKEN} from "../src/interfaces/IFilecoinPay.sol";
 import {ITreasury} from "../src/interfaces/ITreasury.sol";
 import {AppointTreasurer} from "../src/impl/AuthAdmin.sol";
-import {DepositTo, Grant, MAX_GRANT, Withdraw, Withhold} from "../src/impl/Grants.sol";
+import {Available, DepositTo, Grant, MAX_GRANT, Reserved, Withdraw, Withhold} from "../src/impl/Grants.sol";
 import {Install, Uninstall} from "../src/impl/ProxyAdmin.sol";
 
 uint256 constant TREASURER = 2;
@@ -53,9 +53,11 @@ contract GrantsTest is MockFVMTest {
         treasury.install(ITreasury.withhold.selector, address(new Withhold()));
 
         treasury.install(ITreasury.allocated.selector, address(new Allocated()));
+        treasury.install(ITreasury.available.selector, address(new Available()));
         treasury.install(ITreasury.authorization.selector, address(new Authorization()));
         treasury.install(ITreasury.dispersed.selector, address(new Dispersed()));
         treasury.install(ITreasury.granted.selector, address(new Granted()));
+        treasury.install(ITreasury.reserved.selector, address(new Reserved()));
 
         treasury.uninstall(Bootstrap.configure.selector);
         treasury.uninstall(BecomeAdmin.becomeAdministrator.selector);
@@ -92,14 +94,18 @@ contract GrantsTest is MockFVMTest {
     function testWithdrawGrant() public {
         assertEq(treasury.granted(unauthorized), 0);
         assertEq(treasury.allocated(), 0);
+        assertEq(treasury.available(), 0);
         assertEq(treasury.dispersed(), 0);
+        assertEq(treasury.reserved(), 0);
 
         vm.prank(treasurer);
         treasury.grant(unauthorized, 1 ether);
 
         assertEq(treasury.granted(unauthorized), 1 ether);
         assertEq(treasury.allocated(), 1 ether);
+        assertEq(treasury.available(), 0);
         assertEq(treasury.dispersed(), 0);
+        assertEq(treasury.reserved(), 1 ether);
 
         vm.prank(unauthorized);
         vm.expectRevert(stdError.arithmeticError);
@@ -112,15 +118,19 @@ contract GrantsTest is MockFVMTest {
         assertEq(unauthorized.balance, 0);
         assertEq(recipient.balance, 0);
 
-        vm.deal(proxy, 1 ether);
+        vm.deal(proxy, 4 ether);
+        assertEq(treasury.available(), 3 ether);
+
         vm.prank(unauthorized);
         treasury.withdraw(recipient, 1 ether);
 
         assertEq(unauthorized.balance, 0);
         assertEq(recipient.balance, 1 ether);
         assertEq(treasury.granted(unauthorized), 0);
+        assertEq(treasury.available(), 3 ether);
         assertEq(treasury.allocated(), 1 ether);
         assertEq(treasury.dispersed(), 1 ether);
+        assertEq(treasury.reserved(), 0);
     }
 
     function testWithholdGrant() public {
@@ -157,8 +167,12 @@ contract GrantsTest is MockFVMTest {
         vm.expectRevert(stdError.arithmeticError);
         treasury.depositTo(filecoinPay, recipient, 2 ether);
 
+        assertEq(treasury.reserved(), 0);
+
         vm.prank(treasurer);
         treasury.grant(unauthorized, 1 ether);
+
+        assertEq(treasury.reserved(), 1 ether);
 
         vm.prank(unauthorized);
         vm.expectRevert();
@@ -174,6 +188,8 @@ contract GrantsTest is MockFVMTest {
         assertEq(recipient.balance, 0);
         assertEq(treasury.granted(unauthorized), 0);
         assertEq(treasury.allocated(), 1 ether);
+        assertEq(treasury.available(), 0);
         assertEq(treasury.dispersed(), 1 ether);
+        assertEq(treasury.reserved(), 0);
     }
 }

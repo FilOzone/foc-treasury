@@ -47,3 +47,19 @@ contract DepositTo is TreasuryStorage {
         where.deposit{value: wad}(NATIVE_TOKEN, to, wad);
     }
 }
+
+contract Available is TreasuryStorage {
+    function available() external view returns (uint256) {
+        uint256 totalIncome = address(this).balance + dispersed;
+        if (totalIncome < allocated) {
+            return 0;
+        }
+        return totalIncome - allocated;
+    }
+}
+
+contract Reserved is TreasuryStorage {
+    function reserved() external view returns (uint256) {
+        return allocated - dispersed;
+    }
+}
