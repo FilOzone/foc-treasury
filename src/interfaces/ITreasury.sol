@@ -6,6 +6,8 @@ import {IFilecoinPay} from "./IFilecoinPay.sol";
 interface ITreasury is IERC8109Minimal {
     // TreasuryAuth
     error Unauthorized(address who, uint256 requiredAuthorization);
+    event Appoint(address who, uint256 roles);
+    event Dismiss(address who, uint256 roles);
 
     // public view
     function authorization(address who) external view returns (uint256 permissions);
