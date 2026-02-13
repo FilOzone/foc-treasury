@@ -26,6 +26,7 @@ interface ITreasury is IERC8109Minimal {
 
     // proxy onlyAdmin
     error FunctionExists(bytes4 selector);
+    error MissingDelegate();
     function install(bytes4 selector, address delegate) external;
     function upgrade(bytes4 selector, address delegate) external;
     function uninstall(bytes4 selector) external;

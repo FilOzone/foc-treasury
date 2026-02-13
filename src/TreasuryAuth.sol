@@ -8,6 +8,9 @@ contract TreasuryAuth is TreasuryStorage {
     uint256 internal constant TREASURER = 2;
     //uint256 internal constant  = 4;
 
+    event Appoint(address who, uint256 roles);
+    event Dismiss(address who, uint256 roles);
+
     function auth(address who, uint256 requiredPermissions) internal view {
         require(
             authorization[who] & requiredPermissions == requiredPermissions,
@@ -17,10 +20,12 @@ contract TreasuryAuth is TreasuryStorage {
 
     function appoint(address who, uint256 roles) internal {
         authorization[who] |= roles;
+        emit Appoint(who, roles);
     }
 
     function dismiss(address who, uint256 roles) internal {
         authorization[who] &= ~roles;
+        emit Dismiss(who, roles);
     }
 
     modifier onlyAdmin() {

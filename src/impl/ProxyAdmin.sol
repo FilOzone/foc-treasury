@@ -9,6 +9,7 @@ address constant FUNCTION_NOT_FOUND = address(0x00000000000000000000000000000000
 contract Install is TreasuryAuth {
     function install(bytes4 selector, address delegate) external onlyAdmin {
         require(selectorToFacet[selector] == FUNCTION_NOT_FOUND, ITreasury.FunctionExists(selector));
+        require(delegate != FUNCTION_NOT_FOUND, ITreasury.MissingDelegate());
         selectorToFacet[selector] = delegate;
         emit IERC8109Minimal.SetDiamondFacet(selector, delegate);
     }
@@ -17,6 +18,7 @@ contract Install is TreasuryAuth {
 contract Upgrade is TreasuryAuth {
     function upgrade(bytes4 selector, address delegate) external onlyAdmin {
         require(selectorToFacet[selector] != FUNCTION_NOT_FOUND, IERC8109Minimal.FunctionNotFound(selector));
+        require(delegate != FUNCTION_NOT_FOUND, ITreasury.MissingDelegate());
         selectorToFacet[selector] = delegate;
         emit IERC8109Minimal.SetDiamondFacet(selector, delegate);
     }
