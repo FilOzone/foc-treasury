@@ -1,8 +1,9 @@
 pragma solidity ^0.8.33;
 
-import { IFilecoinPay } from "./IFilecoinPay.sol";
+import {IERC8109Minimal} from "erc8109/interfaces/IERC8109Minimal.sol";
+import {IFilecoinPay} from "./IFilecoinPay.sol";
 
-interface ITreasury {
+interface ITreasury is IERC8109Minimal {
     // TreasuryAuth
     error Unauthorized(address who, uint256 requiredAuthorization);
 
@@ -22,4 +23,16 @@ interface ITreasury {
     // user
     function withdraw(address payable to, uint256 wad) external;
     function depositTo(IFilecoinPay where, address to, uint256 wad) external;
+
+    // proxy onlyAdmin
+    error FunctionExists(bytes4 selector);
+    function install(bytes4 selector, address delegate) external;
+    function upgrade(bytes4 selector, address delegate) external;
+    function uninstall(bytes4 selector) external;
+
+    // auth onlyAdmin
+    function appointAdministrator(address admin) external;
+    function dismissAdministrator(address admin) external;
+    function appointTreasurer(address treasurer) external;
+    function dismissTreasurer(address treasurer) external;
 }

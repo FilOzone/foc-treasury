@@ -1,10 +1,10 @@
 pragma solidity ^0.8.33;
 
-import { FVMPay } from "fvm-solidity/FVMPay.sol";
+import {FVMPay} from "fvm-solidity/FVMPay.sol";
 
-import { IFilecoinPay, NATIVE_TOKEN } from "../interfaces/IFilecoinPay.sol";
-import { TreasuryStorage} from "../TreasuryStorage.sol";
-import { TreasuryAuth } from "../TreasuryAuth.sol";
+import {IFilecoinPay, NATIVE_TOKEN} from "../interfaces/IFilecoinPay.sol";
+import {TreasuryStorage} from "../TreasuryStorage.sol";
+import {TreasuryAuth} from "../TreasuryAuth.sol";
 
 contract Grant is TreasuryAuth {
     function grant(address who, uint256 wad) external onlyTreasurer {

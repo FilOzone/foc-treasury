@@ -1,11 +1,11 @@
 pragma solidity ^0.8.33;
 
-import { ITreasury } from "./interfaces/ITreasury.sol";
-import { TreasuryStorage } from "./TreasuryStorage.sol";
+import {ITreasury} from "./interfaces/ITreasury.sol";
+import {TreasuryStorage} from "./TreasuryStorage.sol";
 
 contract TreasuryAuth is TreasuryStorage {
-    uint256 private constant ADMIN = 1;
-    uint256 private constant TREASURER = 2;
+    uint256 internal constant ADMIN = 1;
+    uint256 internal constant TREASURER = 2;
     //uint256 internal constant  = 4;
 
     function auth(address who, uint256 requiredPermissions) internal view {
@@ -15,12 +15,20 @@ contract TreasuryAuth is TreasuryStorage {
         );
     }
 
-    modifier onlyAdmin {
+    function appoint(address who, uint256 roles) internal {
+        authorization[who] |= roles;
+    }
+
+    function dismiss(address who, uint256 roles) internal {
+        authorization[who] &= ~roles;
+    }
+
+    modifier onlyAdmin() {
         auth(msg.sender, ADMIN);
         _;
     }
 
-    modifier onlyTreasurer {
+    modifier onlyTreasurer() {
         auth(msg.sender, TREASURER);
         _;
     }
