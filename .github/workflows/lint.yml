@@ -1,0 +1,38 @@
+name: Forge Lint
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install EVM assembler
+        run: |
+          git clone https://github.com/wjmelements/evm.git
+          git -C evm checkout 9dcaf48ca83f5ebcb902fb00ffd8602302f4ab5e
+          make -C evm check
+          sudo install evm/bin/evm $(dirname $(which git))
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.5.1
+          cache: true
+
+      - name: make
+        run: make
+
+      - name: forge fmt
+        run: forge fmt --check
+
+      - name: forge lint
+        run: ! (forge lint 2>&1 | grep "")
