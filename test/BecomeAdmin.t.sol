@@ -4,8 +4,10 @@ import {Test} from "forge-std/Test.sol";
 import {Bootstrap} from "erc8109/interfaces/Bootstrap.sol";
 
 import {BecomeAdmin} from "../src/bootstrap/BecomeAdmin.sol";
+import {Authorization} from "../src/gen/TreasuryStorageView.sol";
 import {ITreasury} from "../src/interfaces/ITreasury.sol";
 
+uint256 constant UNAUTHORIZED = 0;
 uint256 constant ADMIN = 1;
 
 contract BecomeAdminTest is Test {
@@ -32,13 +34,14 @@ contract BecomeAdminTest is Test {
         vm.expectRevert(abi.encodeWithSelector(ITreasury.Unauthorized.selector, address(this), ADMIN));
         BecomeAdmin(proxy).becomeAdministrator();
 
-        // TODO assertEq(ITreasury(proxy).authorization(unauthorized), UNAUTHORIZED);
+        Bootstrap(proxy).configure(ITreasury.authorization.selector, address(new Authorization()));
+        assertEq(ITreasury(proxy).authorization(unauthorized), UNAUTHORIZED);
 
         vm.prank(unauthorized);
         vm.expectEmit();
         emit ITreasury.Appoint(unauthorized, ADMIN);
         BecomeAdmin(proxy).becomeAdministrator();
 
-        // TODO assertEq(ITreasury(proxy).authorization(unauthorized), ADMIN);
+        assertEq(ITreasury(proxy).authorization(unauthorized), ADMIN);
     }
 }

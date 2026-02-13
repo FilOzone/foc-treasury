@@ -8,10 +8,12 @@ SUBMODULE_PHONY := $(SUBMODULE_BUILD) $(SUBMODULE_CLEAN) $(SUBMODULE_TEST)
 
 default: build
 
+GEN := $(patsubst src/gen/%.sh,src/gen/%.sol,$(wildcard src/gen/*.sh))
+
 $(SUBMODULE_PHONY):
 	$(MAKE) -C $(dir $@) $(notdir $@)
 
-build: $(SUBMODULE_BUILD)
+build: $(GEN) $(SUBMODULE_BUILD)
 	forge build
 
 test: build $(SUBMODULE_TEST)
@@ -19,3 +21,7 @@ test: build $(SUBMODULE_TEST)
 
 clean: $(SUBMODULE_CLEAN)
 	rm -rf out
+
+
+src/gen/TreasuryStorageView.sol: src/gen/TreasuryStorageView.sh src/TreasuryStorage.sol
+	$^ | forge fmt -r - > $@
