@@ -5,11 +5,15 @@ import {Test} from "forge-std/Test.sol";
 import {Bootstrap} from "erc8109/interfaces/Bootstrap.sol";
 import {IERC8109Minimal} from "erc8109/interfaces/IERC8109Minimal.sol";
 
+address constant FUNCTION_NOT_FOUND = address(0x0000000000000000000000000000000000000000);
+
 contract ProxyTest is Test {
     address internal proxy;
+    address internal bootstrapImpl;
 
     function setUp() public {
         proxy = deployCode("lib/erc8109/out/Proxy.constructor.evm/Proxy.constructor.json");
+        bootstrapImpl = vm.computeCreateAddress(proxy, 1);
     }
 
     function testFunctionNotFound() public {
@@ -28,12 +32,19 @@ contract ProxyTest is Test {
 
     function testBootstrapConfigureIntrospect() public {
         address facetAddressImpl = deployCode("lib/erc8109/out/facetAddress.evm/facetAddress.json");
-        assertEq(facetAddressImpl.code.length, 15);
 
         vm.expectEmit();
         emit IERC8109Minimal.SetDiamondFacet(IERC8109Minimal.facetAddress.selector, facetAddressImpl);
         Bootstrap(proxy).configure(IERC8109Minimal.facetAddress.selector, facetAddressImpl);
 
         assertEq(IERC8109Minimal(proxy).facetAddress(IERC8109Minimal.facetAddress.selector), facetAddressImpl);
+        assertEq(IERC8109Minimal(proxy).facetAddress(Bootstrap.configure.selector), bootstrapImpl);
+
+        vm.expectEmit();
+        emit IERC8109Minimal.SetDiamondFacet(Bootstrap.configure.selector, FUNCTION_NOT_FOUND);
+        Bootstrap(proxy).configure(Bootstrap.configure.selector, FUNCTION_NOT_FOUND);
+
+        assertEq(IERC8109Minimal(proxy).facetAddress(IERC8109Minimal.facetAddress.selector), facetAddressImpl);
+        assertEq(IERC8109Minimal(proxy).facetAddress(Bootstrap.configure.selector), FUNCTION_NOT_FOUND);
     }
 }
