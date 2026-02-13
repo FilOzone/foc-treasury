@@ -23,6 +23,7 @@ interface ITreasury is IERC8109Minimal {
     function withhold(address who, uint256 wad) external;
 
     // user
+    error PaymentFailure();
     function withdraw(address payable to, uint256 wad) external;
     function depositTo(IFilecoinPay where, address to, uint256 wad) external;
 

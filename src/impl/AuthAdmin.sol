@@ -16,12 +16,12 @@ contract DismissAdministrator is TreasuryAuth {
 
 contract AppointTreasurer is TreasuryAuth {
     function appointTreasurer(address admin) external onlyAdmin {
-        appoint(admin, ADMIN);
+        appoint(admin, TREASURER);
     }
 }
 
 contract DismissTreasurer is TreasuryAuth {
     function dismissTreasurer(address admin) external onlyAdmin {
-        dismiss(admin, ADMIN);
+        dismiss(admin, TREASURER);
     }
 }

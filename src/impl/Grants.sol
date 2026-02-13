@@ -3,6 +3,7 @@ pragma solidity ^0.8.33;
 import {FVMPay} from "fvm-solidity/FVMPay.sol";
 
 import {IFilecoinPay, NATIVE_TOKEN} from "../interfaces/IFilecoinPay.sol";
+import {ITreasury} from "../interfaces/ITreasury.sol";
 import {TreasuryStorage} from "../TreasuryStorage.sol";
 import {TreasuryAuth} from "../TreasuryAuth.sol";
 
@@ -32,7 +33,7 @@ contract Withdraw is TreasuryStorage {
     function withdraw(address payable to, uint256 wad) external {
         granted[msg.sender] -= wad;
         dispersed += wad;
-        to.pay(wad);
+        require(to.pay(wad), ITreasury.PaymentFailure());
     }
 }
 
