@@ -22,6 +22,8 @@ test: build $(SUBMODULE_TEST)
 clean: $(SUBMODULE_CLEAN)
 	rm -rf out
 
-
 src/gen/TreasuryStorageView.sol: src/gen/TreasuryStorageView.sh src/TreasuryStorage.sol
+	$^ | forge fmt -r - > $@
+
+src/gen/FunctionFacetPairs.sol: src/gen/FunctionFacetPairs.sh src/interfaces/ITreasury.sol
 	$^ | forge fmt -r - > $@
