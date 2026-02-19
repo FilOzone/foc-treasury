@@ -17,8 +17,7 @@ jobs:
 
       - name: Install EVM assembler
         run: |
-          git clone https://github.com/wjmelements/evm.git
-          git -C evm checkout 9dcaf48ca83f5ebcb902fb00ffd8602302f4ab5e
+          git clone --depth 1 --revision ce7ad588c737f2d11d3f8b55ec427a611a540c2f --recurse-submodules --shallow-submodules --no-tags https://github.com/wjmelements/evm.git
           make -C evm check
           sudo install evm/bin/evm $(dirname $(which git))
 
