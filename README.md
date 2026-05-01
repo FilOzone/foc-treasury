@@ -1,6 +1,6 @@
 # Filecoin Onchain Cloud Treasury
 
-## Developoer Setup
+## Developer Setup
 
 ### Install dependencies
 [This EVM assembler](https://github.com/wjmelements/evm) is used to build the proxy.
