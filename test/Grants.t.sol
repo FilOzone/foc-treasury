@@ -1,6 +1,6 @@
 pragma solidity ^0.8.33;
 
-import {Bootstrap} from "erc8109/interfaces/Bootstrap.sol";
+import {Bootstrap} from "erc8167/interfaces/Bootstrap.sol";
 import {stdError} from "forge-std/StdError.sol";
 import {MockFVMTest} from "fvm-solidity/mocks/MockFVMTest.sol";
 
@@ -37,7 +37,7 @@ contract GrantsTest is MockFVMTest {
     function setUp() public override {
         super.setUp();
 
-        proxy = deployCode("lib/erc8109/out/Proxy.constructor.evm/Proxy.constructor.json");
+        proxy = deployCode("lib/erc8167/out/Proxy.constructor.evm/Proxy.constructor.json");
 
         Bootstrap(proxy).configure(BecomeAdmin.becomeAdministrator.selector, address(new BecomeAdmin()));
         BecomeAdmin(proxy).becomeAdministrator();

@@ -2,8 +2,8 @@ pragma solidity ^0.8.30;
 
 import {Test} from "forge-std/Test.sol";
 
-import {Bootstrap} from "erc8109/interfaces/Bootstrap.sol";
-import {IERC8109Minimal} from "erc8109/interfaces/IERC8109Minimal.sol";
+import {Bootstrap} from "erc8167/interfaces/Bootstrap.sol";
+import {IERC8167} from "erc8167/interfaces/IERC8167.sol";
 
 address constant FUNCTION_NOT_FOUND = address(0x0000000000000000000000000000000000000000);
 
@@ -12,15 +12,15 @@ contract ProxyTest is Test {
     address internal bootstrapImpl;
 
     function setUp() public {
-        proxy = deployCode("lib/erc8109/out/Proxy.constructor.evm/Proxy.constructor.json");
+        proxy = deployCode("lib/erc8167/out/Proxy.constructor.evm/Proxy.constructor.json");
         bootstrapImpl = vm.computeCreateAddress(proxy, 1);
     }
 
     function testFunctionNotFound() public {
         vm.expectRevert(
-            abi.encodeWithSelector(IERC8109Minimal.FunctionNotFound.selector, IERC8109Minimal.facetAddress.selector)
+            abi.encodeWithSelector(IERC8167.FunctionNotFound.selector, IERC8167.implementation.selector)
         );
-        IERC8109Minimal(proxy).facetAddress(Bootstrap.configure.selector);
+        IERC8167(proxy).implementation(Bootstrap.configure.selector);
     }
 
     function testBootstrapConfigureUnauthorized() public {
@@ -31,20 +31,20 @@ contract ProxyTest is Test {
     }
 
     function testBootstrapConfigureIntrospect() public {
-        address facetAddressImpl = deployCode("lib/erc8109/out/facetAddress.evm/facetAddress.json");
+        address implementationImpl = deployCode("lib/erc8167/out/implementation.evm/implementation.json");
 
         vm.expectEmit();
-        emit IERC8109Minimal.SetDiamondFacet(IERC8109Minimal.facetAddress.selector, facetAddressImpl);
-        Bootstrap(proxy).configure(IERC8109Minimal.facetAddress.selector, facetAddressImpl);
+        emit IERC8167.SelectorDelegated(IERC8167.implementation.selector, implementationImpl);
+        Bootstrap(proxy).configure(IERC8167.implementation.selector, implementationImpl);
 
-        assertEq(IERC8109Minimal(proxy).facetAddress(IERC8109Minimal.facetAddress.selector), facetAddressImpl);
-        assertEq(IERC8109Minimal(proxy).facetAddress(Bootstrap.configure.selector), bootstrapImpl);
+        assertEq(IERC8167(proxy).implementation(IERC8167.implementation.selector), implementationImpl);
+        assertEq(IERC8167(proxy).implementation(Bootstrap.configure.selector), bootstrapImpl);
 
         vm.expectEmit();
-        emit IERC8109Minimal.SetDiamondFacet(Bootstrap.configure.selector, FUNCTION_NOT_FOUND);
+        emit IERC8167.SelectorDelegated(Bootstrap.configure.selector, FUNCTION_NOT_FOUND);
         Bootstrap(proxy).configure(Bootstrap.configure.selector, FUNCTION_NOT_FOUND);
 
-        assertEq(IERC8109Minimal(proxy).facetAddress(IERC8109Minimal.facetAddress.selector), facetAddressImpl);
-        assertEq(IERC8109Minimal(proxy).facetAddress(Bootstrap.configure.selector), FUNCTION_NOT_FOUND);
+        assertEq(IERC8167(proxy).implementation(IERC8167.implementation.selector), implementationImpl);
+        assertEq(IERC8167(proxy).implementation(Bootstrap.configure.selector), FUNCTION_NOT_FOUND);
     }
 }

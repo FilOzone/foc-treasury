@@ -1,11 +1,11 @@
 pragma solidity ^0.8.33;
 
-import {Bootstrap} from "erc8109/interfaces/Bootstrap.sol";
-import {IERC8109Minimal} from "erc8109/interfaces/IERC8109Minimal.sol";
+import {Bootstrap} from "erc8167/interfaces/Bootstrap.sol";
+import {IERC8167} from "erc8167/interfaces/IERC8167.sol";
 import {Script} from "forge-std/Script.sol";
 
 import {BecomeAdmin} from "../src/bootstrap/BecomeAdmin.sol";
-import {FunctionFacetPairs} from "../src/gen/FunctionFacetPairs.sol";
+import {Selectors} from "../src/gen/Selectors.sol";
 import {Authorization, Granted, Allocated, Dispersed} from "../src/gen/TreasuryStorageView.sol";
 import {ITreasury} from "../src/interfaces/ITreasury.sol";
 import {
@@ -19,7 +19,7 @@ import {Install, Upgrade, Uninstall} from "../src/impl/ProxyAdmin.sol";
 
 contract DeployTreasury is Script {
     function deploy() public returns (ITreasury treasury) {
-        address proxy = deployCode("lib/erc8109/out/Proxy.constructor.evm/Proxy.constructor.json");
+        address proxy = deployCode("lib/erc8167/out/Proxy.constructor.evm/Proxy.constructor.json");
         Bootstrap(proxy).configure(BecomeAdmin.becomeAdministrator.selector, address(new BecomeAdmin()));
         Bootstrap(proxy).configure(ITreasury.install.selector, address(new Install()));
         BecomeAdmin(proxy).becomeAdministrator();
@@ -37,9 +37,9 @@ contract DeployTreasury is Script {
         treasury.install(ITreasury.dismissTreasurer.selector, address(new DismissTreasurer()));
         treasury.install(ITreasury.dispersed.selector, address(new Dispersed()));
         treasury.install(
-            IERC8109Minimal.facetAddress.selector, deployCode("lib/erc8109/out/facetAddress.evm/facetAddress.json")
+            IERC8167.implementation.selector, deployCode("lib/erc8167/out/implementation.evm/implementation.json")
         );
-        treasury.install(IERC8109Minimal.functionFacetPairs.selector, address(new FunctionFacetPairs()));
+        treasury.install(IERC8167.selectors.selector, address(new Selectors()));
         treasury.install(ITreasury.grant.selector, address(new Grant()));
         treasury.install(ITreasury.granted.selector, address(new Granted()));
         //treasury.install(ITreasury.install.selector, address(new Install()));

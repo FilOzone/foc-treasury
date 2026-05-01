@@ -5,5 +5,5 @@ optimizer_runs = 99999999
 via_ir = true
 
 fs_permissions = [
-    { access = "read", path = "./lib/erc8109/out/" }
+    { access = "read", path = "./lib/erc8167/out/" }
 ]

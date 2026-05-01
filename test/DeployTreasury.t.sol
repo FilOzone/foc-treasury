@@ -1,7 +1,7 @@
 pragma solidity ^0.8.33;
 
-import {Bootstrap} from "erc8109/interfaces/Bootstrap.sol";
-import {IERC8109Minimal} from "erc8109/interfaces/IERC8109Minimal.sol";
+import {Bootstrap} from "erc8167/interfaces/Bootstrap.sol";
+import {IERC8167} from "erc8167/interfaces/IERC8167.sol";
 import {Test} from "forge-std/Test.sol";
 
 import {BecomeAdmin} from "../src/bootstrap/BecomeAdmin.sol";
@@ -9,22 +9,23 @@ import {DeployTreasury} from "../script/DeployTreasury.s.sol";
 
 contract DeployTreasuryTest is Test {
     function testDeployTreasury() public {
-        IERC8109Minimal proxy = new DeployTreasury().deploy();
+        IERC8167 proxy = new DeployTreasury().deploy();
 
-        // ensure all pairs have been configured
-        IERC8109Minimal.FunctionFacetPair[] memory pairs = proxy.functionFacetPairs();
-        for (uint256 i = 0; i < pairs.length; i++) {
-            assertNotEq(pairs[i].facet, address(0));
+        // ensure all selectors have been configured
+        bytes4[] memory selectors = proxy.selectors();
+        for (uint256 i = 0; i < selectors.length; i++) {
+            address implementation = proxy.implementation(selectors[i]);
+            assertNotEq(implementation, address(0));
+            for (uint256 j = 0; j < i; j++) {
+                // ensure each selectors has a different delegate
+                assertNotEq(implementation, proxy.implementation(selectors[j]));
+            }
         }
-        // ensure functionFacetPairs matches facetAddress
-        for (uint256 i = 0; i < pairs.length; i++) {
-            assertEq(pairs[i].facet, proxy.facetAddress(pairs[i].selector));
-        }
-        // check expected number of facets
-        assertEq(pairs.length, 19);
+        // check expected number of delegates
+        assertEq(selectors.length, 19);
 
-        // ensure bootstrapping facets were uninstalled
-        assertEq(proxy.facetAddress(BecomeAdmin.becomeAdministrator.selector), address(0));
-        assertEq(proxy.facetAddress(Bootstrap.configure.selector), address(0));
+        // ensure bootstrapping delegates were uninstalled
+        assertEq(proxy.implementation(BecomeAdmin.becomeAdministrator.selector), address(0));
+        assertEq(proxy.implementation(Bootstrap.configure.selector), address(0));
     }
 }

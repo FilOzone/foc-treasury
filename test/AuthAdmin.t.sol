@@ -1,7 +1,7 @@
 pragma solidity ^0.8.33;
 
 import {Test} from "forge-std/Test.sol";
-import {Bootstrap} from "erc8109/interfaces/Bootstrap.sol";
+import {Bootstrap} from "erc8167/interfaces/Bootstrap.sol";
 
 import {BecomeAdmin} from "../src/bootstrap/BecomeAdmin.sol";
 import {Authorization} from "../src/gen/TreasuryStorageView.sol";
@@ -26,7 +26,7 @@ contract AuthAdminTest is Test {
     address internal treasurer;
 
     function setUp() public {
-        proxy = deployCode("lib/erc8109/out/Proxy.constructor.evm/Proxy.constructor.json");
+        proxy = deployCode("lib/erc8167/out/Proxy.constructor.evm/Proxy.constructor.json");
 
         Bootstrap(proxy).configure(BecomeAdmin.becomeAdministrator.selector, address(new BecomeAdmin()));
         Bootstrap(proxy).configure(ITreasury.install.selector, address(new Install()));

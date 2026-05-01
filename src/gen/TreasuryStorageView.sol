@@ -1,6 +1,6 @@
 pragma solidity ^0.8.33;
 
-import {ProxyStorageBase} from "erc8109/ProxyStorageBase.sol";
+import {ProxyStorageBase} from "erc8167/ProxyStorageBase.sol";
 
 // Generated with make src/gen/TreasuryStorageView.sol
 

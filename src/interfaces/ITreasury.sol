@@ -1,9 +1,9 @@
 pragma solidity ^0.8.33;
 
-import {IERC8109Minimal} from "erc8109/interfaces/IERC8109Minimal.sol";
+import {IERC8167} from "erc8167/interfaces/IERC8167.sol";
 import {IFilecoinPay} from "./IFilecoinPay.sol";
 
-interface ITreasury is IERC8109Minimal {
+interface ITreasury is IERC8167 {
     // TreasuryAuth
     error Unauthorized(address who, uint256 requiredAuthorization);
     event Appoint(address who, uint256 roles);

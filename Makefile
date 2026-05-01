@@ -25,5 +25,5 @@ clean: $(SUBMODULE_CLEAN)
 src/gen/TreasuryStorageView.sol: src/gen/TreasuryStorageView.sh src/TreasuryStorage.sol
 	$^ | forge fmt -r - > $@
 
-src/gen/FunctionFacetPairs.sol: src/gen/FunctionFacetPairs.sh src/interfaces/ITreasury.sol
+src/gen/Selectors.sol: src/gen/Selectors.sh src/interfaces/ITreasury.sol
 	$^ | forge fmt -r - > $@
