@@ -34,4 +34,5 @@ jobs:
         run: forge fmt --check
 
       - name: forge lint
-        run: ! (forge lint 2>&1 | grep "")
+        run: |
+          ! (forge lint 2>&1 | grep "")
