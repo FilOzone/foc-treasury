@@ -17,9 +17,7 @@ contract ProxyAdminTest is Test {
     function testBootstrapConfigure() public {
         IERC8167 viewer = IERC8167(address(proxy));
 
-        vm.expectRevert(
-            abi.encodeWithSelector(IERC8167.FunctionNotFound.selector, IERC8167.implementation.selector)
-        );
+        vm.expectRevert(abi.encodeWithSelector(IERC8167.FunctionNotFound.selector, IERC8167.implementation.selector));
         viewer.implementation(IERC8167.implementation.selector);
 
         address implementationImpl = deployCode("lib/erc8167/out/implementation.evm/implementation.json");

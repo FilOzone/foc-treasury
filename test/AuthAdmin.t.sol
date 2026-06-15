@@ -6,10 +6,7 @@ import {Bootstrap} from "erc8167/interfaces/Bootstrap.sol";
 import {BecomeAdmin} from "../src/bootstrap/BecomeAdmin.sol";
 import {Authorization} from "../src/gen/TreasuryStorageView.sol";
 import {
-    AppointAdministrator,
-    AppointTreasurer,
-    DismissAdministrator,
-    DismissTreasurer
+    AppointAdministrator, AppointTreasurer, DismissAdministrator, DismissTreasurer
 } from "../src/impl/AuthAdmin.sol";
 import {Install, Uninstall} from "../src/impl/ProxyAdmin.sol";
 import {ITreasury} from "../src/interfaces/ITreasury.sol";

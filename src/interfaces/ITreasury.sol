@@ -6,6 +6,7 @@ import {IFilecoinPay} from "./IFilecoinPay.sol";
 interface ITreasury is IERC8167 {
     // TreasuryAuth
     error Unauthorized(address who, uint256 requiredAuthorization);
+
     event Appoint(address who, uint256 roles);
     event Dismiss(address who, uint256 roles);
 
@@ -20,17 +21,20 @@ interface ITreasury is IERC8167 {
 
     // onlyTreasurer
     error OversizedGrant(uint256 wad);
+
     function grant(address who, uint256 wad) external;
     function withhold(address who, uint256 wad) external;
 
     // user
     error PaymentFailure();
+
     function withdraw(address payable to, uint256 wad) external;
     function depositTo(IFilecoinPay where, address to, uint256 wad) external;
 
     // proxy onlyAdmin
     error FunctionExists(bytes4 selector);
     error MissingDelegate();
+
     function install(bytes4 selector, address delegate) external;
     function upgrade(bytes4 selector, address delegate) external;
     function uninstall(bytes4 selector) external;

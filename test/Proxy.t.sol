@@ -17,9 +17,7 @@ contract ProxyTest is Test {
     }
 
     function testFunctionNotFound() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(IERC8167.FunctionNotFound.selector, IERC8167.implementation.selector)
-        );
+        vm.expectRevert(abi.encodeWithSelector(IERC8167.FunctionNotFound.selector, IERC8167.implementation.selector));
         IERC8167(proxy).implementation(Bootstrap.configure.selector);
     }
 

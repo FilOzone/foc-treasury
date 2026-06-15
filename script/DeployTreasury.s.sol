@@ -9,10 +9,7 @@ import {Selectors} from "../src/gen/Selectors.sol";
 import {Authorization, Granted, Allocated, Dispersed} from "../src/gen/TreasuryStorageView.sol";
 import {ITreasury} from "../src/interfaces/ITreasury.sol";
 import {
-    AppointAdministrator,
-    AppointTreasurer,
-    DismissAdministrator,
-    DismissTreasurer
+    AppointAdministrator, AppointTreasurer, DismissAdministrator, DismissTreasurer
 } from "../src/impl/AuthAdmin.sol";
 import {Grant, Withhold, Withdraw, DepositTo, Available, Reserved} from "../src/impl/Grants.sol";
 import {Install, Upgrade, Uninstall} from "../src/impl/ProxyAdmin.sol";
